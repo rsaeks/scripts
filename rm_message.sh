@@ -1,4 +1,5 @@
 #!/bin/bash
+# Usage ./rm_messages.sh USER SEARCHTERM 
 # $1 = User to search
 # $2 = Term to search
 # Search term example: "in:someFolder from:someEMailAdress subject:someSubject"
