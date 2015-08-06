@@ -1,12 +1,12 @@
 #!/bin/bash
-################## 
+##########################################################################################  
 # Date: August 5th, 2015
 # Author: Randy Saeks
 #
 # Purpose: Output URL schemes of an iOS App
 #
 # Usage: Run this in Terminal in the format ./getURLScheme.sh FILE.IPA
-##################
+########################################################################################## 
 
 #Check for argument
 if [[ -z "$1" ]]; then
