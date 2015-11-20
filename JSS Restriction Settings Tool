@@ -1,0 +1,56 @@
+(*
+	Title:		JSS Restriction Settings Tool
+	Author:		Randy Saeks (@rsaeks)
+	Purpose:		This AppleScript will provide a GUI method for adding / removing a device into a static mobile device group in your JSS.
+				It will use the JSS API do this. This arrived from the use case of wanting to grant Tier I support a way to quickly
+				remove settings from a device for troubleshooting purposes without requring a JSS login. In doing so, it is
+				possible to delegate some technical steps with minimal training.
+	Thank You:	Thank you to Fred Cox (@FredCox3) for sharing some of these methods and API possibilites.
+	TO DO:		Prior to running this there are a few settings to modify
+				1. Replace USER:PASSWORD with a valid JSS Username:Password combo. You may restrict this user to only
+					allow updates / read access to the mobile device group you will be using. You may alternatively
+					prompt for the password and pass it into the script. Saving this as an Application Run-Only may
+					also help obscure the password.
+				2. Replace JSSURL with the FQDN of your JSS. If the port used is not 8443 please change this.
+				3. Replace GROUPID with the numerical ID of the group number you will add the device to. This group
+					should scoped as an exclusion to the Configuration Profile(s) you would like to remove from. 
+				4. Test new settings & Export the script as an Application
+	Notes:		On a 10.11 client this may fail due to changes in the curl binary.
+	Dev Plans:	I'm hoping to convert this to an OS X native application.
+*)
+
+tell application "System Events"
+	try
+		-- ask for device serial number
+		set Serial to text returned of (display dialog "Enter a serial number" buttons {"Cancel", "Enter"} default button 2 default answer "")
+	end try
+	-- verify serial number
+	display dialog "The entered serial number is " & Serial & ". If this is correct, click Continue" buttons {"Continue", "Cancel"} default button 2
+	
+	try
+		-- get info on action to perform
+		set Choice to button returned of (display dialog "Would you like to REMOVE restrictions or RE-APPLY restrictions?" buttons {"Remove", "Re-Apply"})
+	end try
+	
+	if Choice = "Remove" then
+		-- add device to mobile device group with ID GROUPID. This group is scoped as an exclusion for restriction settings
+		set commandPt1 to "curl -X PUT -H \"Accept: application/xml\" -H \"Content-type: application/xml\" -k -u USER:PASSWORD -d \"<mobile_device_group><mobile_device_additions><mobile_device><serial_number>"
+		set commandPt2 to "</serial_number></mobile_device></mobile_device_additions></mobile_device_group>\" \"https://JSSURL:8443/JSSResource/mobiledevicegroups/id/GROUPID\""
+	else if Choice = "Re-Apply" then
+		-- remove device to mobile device group with ID GROUPID. This group is an exclusion for student restriction settings
+		set commandPt1 to "curl -X PUT -H \"Accept: application/xml\" -H \"Content-type: application/xml\" -k -u USER:PASSWORD -d \"<mobile_device_group><mobile_device_deletions><mobile_device><serial_number>"
+		set commandPt2 to "</serial_number></mobile_device></mobile_device_deletions></mobile_device_group>\" \"https://JSSURL:8443/JSSResource/mobiledevicegroups/id/GROUPID\""
+	end if
+	
+end tell
+
+-- combine the commands with serial number
+set theCommand to commandPt1 & Serial & commandPt2
+
+-- run the script
+do shell script theCommand
+
+-- tell end user the command was sent
+tell application "System Events"
+	display dialog "Performed a restrictions " & Choice & " for device " & Serial
+end tell
