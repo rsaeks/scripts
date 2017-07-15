@@ -20,7 +20,7 @@ username="$2"
 password="$3"
 
 # For a mobile device, uncomment the line below and update with your JSS URL
-jssURL="https://JSSURL:PORT/JSSResource/mobiledevices/serialnumber/"
+#jssURL="https://JSSURL:PORT/JSSResource/mobiledevices/serialnumber/"
 
 # For a computer, uncomment the line below and update with your JSS URL
 #jssURL="https://JSSURL:PORT/JSSResource/computers/serialnumber/"
